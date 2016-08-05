@@ -4,32 +4,40 @@ import _assert from 'assert';
 
 export const TYPE_UNDEFINED = Symbol("undefined");
 export const TYPE_NULL = Symbol("null");
+
 export const TYPE_BOOLEAN = Symbol("boolean");
+
 export const TYPE_NUMBER = Symbol("number");
 export const TYPE_NUMBER_NAN = Symbol("NaN");
 export const TYPE_NUMBER_POS = Symbol("number: n>=0");
 export const TYPE_NUMBER_NEG = Symbol("number: n<=0");
 export const TYPE_NUMBER_INT = Symbol("number: n%1==0");
 export const TYPE_NUMBER_INT_POS = Symbol("number: n%1==0&&n>=0");
-export const TYPE_NUMBER_INT_NEG = Symbol("number: n%1==0&&n<=0");
 export const TYPE_NUMBER_INT_POS_8 = Symbol("number: n%1==0%%n>=0&&n<(1<<7)");
 export const TYPE_NUMBER_INT_POS_16 = Symbol("number: n%1==0&&n>=0&&n<(1<<15)");
 export const TYPE_NUMBER_INT_POS_24 = Symbol("number: n%1==0&&n>=0&&n<(1<<23)");
 export const TYPE_NUMBER_INT_POS_32 = Symbol("number: n%1==0&&n>=0&&n<(1<<31)");
 export const TYPE_NUMBER_INT_POS_MAX = Symbol("number: n%1==0&&n>=0");
+export const TYPE_NUMBER_INT_NEG = Symbol("number: n%1==0&&n<=0");
+
 export const TYPE_STRING = Symbol("string");
 export const TYPE_STRING_EMPTY = Symbol("string: ^$");
 export const TYPE_STRING_CHAR = Symbol("string: ^.$");
 export const TYPE_STRING_NONEMPTY = Symbol("string: ^.+$");
+
 export const TYPE_SYMBOL = Symbol("symbol");
+
 export const TYPE_REGEXP = Symbol("regexp");
+
 export const TYPE_OBJ = Symbol("object");
-export const TYPE_OBJ_FN = Symbol("function");
-export const TYPE_OBJ_ARR = Symbol("object: array");
-export const TYPE_OBJ_ERR = Symbol("object: error");
 export const TYPE_OBJ_ITERATOR = Symbol("object: #next()");
+
+export const TYPE_OBJ_ARR = Symbol("object: array");
+
+export const TYPE_OBJ_FN = Symbol("function");
 export const TYPE_OBJ_GENERATOR = Symbol("function*");
 
+export const TYPE_OBJ_ERR = Symbol("object: error");
 
 const FLAG_TYPE_NONE = 0x80000;
 const FLAG_TYPE_UNDEFINED = 0x01;
