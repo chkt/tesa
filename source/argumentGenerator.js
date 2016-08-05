@@ -1,4 +1,4 @@
-import _assert from 'assert';
+import assert from 'assert';
 
 
 
@@ -297,7 +297,7 @@ export default function use(...args) {
 	if (typeof fn !== 'function') throw new TypeError();
 
 	for (let arg of generator(...args)) {
-		if (arg.valid) _assert.doesNotThrow(() => fn(...arg.items));
-		else _assert.throws(() => fn(...arg.items));
+		if (arg.valid) assert.doesNotThrow(() => fn(...arg.items));
+		else assert.throws(() => fn(...arg.items));
 	}
 }
