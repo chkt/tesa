@@ -29,15 +29,15 @@ export const TYPE_SYMBOL = Symbol("symbol");
 
 export const TYPE_REGEXP = Symbol("regexp");
 
-export const TYPE_OBJ = Symbol("object");
-export const TYPE_OBJ_ITERATOR = Symbol("object: #next()");
+export const TYPE_OBJECT = Symbol("object");
+export const TYPE_OBJECT_ITERATOR = Symbol("object: #next()");
+export const TYPE_OBJECT_ERROR = Symbol("object: error");
 
-export const TYPE_OBJ_ARR = Symbol("object: array");
+export const TYPE_ARRAY = Symbol("object: array");
 
-export const TYPE_OBJ_FN = Symbol("function");
-export const TYPE_OBJ_GENERATOR = Symbol("function*");
+export const TYPE_FUNCTION = Symbol("function");
+export const TYPE_FUNCTION_GENERATOR = Symbol("function*");
 
-export const TYPE_OBJ_ERR = Symbol("object: error");
 
 const FLAG_TYPE_NONE = 0x80000;
 const FLAG_TYPE_UNDEFINED = 0x01;
@@ -90,12 +90,12 @@ const map = new Map([
 	[ TYPE_STRING_NONEMPTY, FLAG_TYPE_STRING | FLAG_STR_NONEMPTY ],
 	[ TYPE_SYMBOL, FLAG_TYPE_SYMBOL ],
 	[ TYPE_REGEXP, FLAG_TYPE_REGEXP ],
-	[ TYPE_OBJ, FLAG_TYPE_OBJ ],
-	[ TYPE_OBJ_FN, FLAG_TYPE_OBJ | FLAG_OBJ_FN ],
-	[ TYPE_OBJ_ARR, FLAG_TYPE_OBJ | FLAG_OBJ_ARR ],
-	[ TYPE_OBJ_ERR, FLAG_TYPE_OBJ | FLAG_OBJ_ERR ],
-	[ TYPE_OBJ_ITERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_IT ],
-	[ TYPE_OBJ_GENERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_GEN ]
+	[ TYPE_OBJECT, FLAG_TYPE_OBJ ],
+	[ TYPE_OBJECT_ITERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_IT ],
+	[ TYPE_OBJECT_ERROR, FLAG_TYPE_OBJ | FLAG_OBJ_ERR ],
+	[ TYPE_ARRAY, FLAG_TYPE_OBJ | FLAG_OBJ_ARR ],
+	[ TYPE_FUNCTION, FLAG_TYPE_OBJ | FLAG_OBJ_FN ],
+	[ TYPE_FUNCTION_GENERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_GEN ]
 ]);
 
 
@@ -121,12 +121,12 @@ const TYPES = Object.freeze([
 	TYPE_STRING_NONEMPTY,
 	TYPE_SYMBOL,
 	TYPE_REGEXP,
-	TYPE_OBJ,
-	TYPE_OBJ_FN,
-	TYPE_OBJ_ARR,
-	TYPE_OBJ_ERR,
-	TYPE_OBJ_ITERATOR,
-	TYPE_OBJ_GENERATOR
+	TYPE_OBJECT,
+	TYPE_OBJECT_ITERATOR,
+	TYPE_OBJECT_ERROR,
+	TYPE_ARRAY,
+	TYPE_FUNCTION,
+	TYPE_FUNCTION_GENERATOR
 ]);
 
 
@@ -158,10 +158,10 @@ function _isDefaultType(type) {
 			TYPE_STRING_NONEMPTY,
 			TYPE_SYMBOL,
 			TYPE_REGEXP,
-			TYPE_OBJ,
-			TYPE_OBJ_FN,
-			TYPE_OBJ_ARR,
-			TYPE_OBJ_ERR
+			TYPE_OBJECT,
+			TYPE_OBJECT_ERROR,
+			TYPE_ARRAY,
+			TYPE_FUNCTION
 		].indexOf(type) !== -1;
 }
 
@@ -252,12 +252,12 @@ function _getArgument(type) {
 		case TYPE_STRING_NONEMPTY : return 'abc';
 		case TYPE_SYMBOL : return Symbol(`Symbol#${ ++nextSymbol }`);
 		case TYPE_REGEXP : return /^$/;
-		case TYPE_OBJ : return {};
-		case TYPE_OBJ_FN : return () => null;
-		case TYPE_OBJ_ARR : return [];
-		case TYPE_OBJ_ERR : return new Error();
-		case TYPE_OBJ_ITERATOR : return {};  //IMPLEMENT
-		case TYPE_OBJ_GENERATOR : return function* () {};
+		case TYPE_OBJECT : return {};
+		case TYPE_OBJECT_ERROR : return new Error();
+		case TYPE_OBJECT_ITERATOR : return {};  //IMPLEMENT
+		case TYPE_ARRAY : return [];
+		case TYPE_FUNCTION : return () => null;
+		case TYPE_FUNCTION_GENERATOR : return function* () {};
 		default : return type;
 	}
 }
