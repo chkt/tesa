@@ -255,8 +255,7 @@ function _getArgument(type) {
 }
 
 
-
-export default function* generator(...validTypes) {
+function* generator(...validTypes) {
 	if (!_isValid(validTypes)) throw new TypeError();
 
 	const defaultArgs = _getDefaultArguments(validTypes);
@@ -279,7 +278,7 @@ export default function* generator(...validTypes) {
 }
 
 
-export function test(...args) {
+export default function use(...args) {
 	const fn = args.pop();
 
 	if (typeof fn !== 'function') throw new TypeError();
