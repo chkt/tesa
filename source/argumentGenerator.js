@@ -1,4 +1,4 @@
-import assert from 'assert';
+import * as assertions from './assertions';
 
 
 
@@ -296,8 +296,13 @@ export default function use(...args) {
 
 	if (typeof fn !== 'function') throw new TypeError();
 
+	const assert = assertions.get();
+
 	for (let arg of generator(...args)) {
-		if (arg.valid) assert.doesNotThrow(() => fn(...arg.items));
-		else assert.throws(() => fn(...arg.items));
+		if (arg.valid) assert.return(fn, arg.items);
+		else assert.throw(fn, arg.items);
 	}
 }
+
+
+export const setAssertions = assertions.set;
