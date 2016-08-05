@@ -278,6 +278,11 @@ function* generator(...validTypes) {
 }
 
 
+/**
+ * Creates a list of arguments and tests against the last argument
+ * @param {...*} args
+ * @throws {TypeError} if the last argument is not a function
+ */
 export default function use(...args) {
 	const fn = args.pop();
 
