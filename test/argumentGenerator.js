@@ -228,4 +228,28 @@ describe("use", () => {
 			if (args[0] instanceof Object && args[0].constructor === Object) throw new Error();
 		});
 	});
+
+	it("should only trigger the return assertion for regular expressions if argument type is TYPE_OBJECT_REGEXP", () => {
+		testAssertType(u.TYPE_OBJECT_REGEXP, (fn, args) => {
+			if (!(args[0] instanceof RegExp)) throw new Error();
+		}, (fn, args) => {
+			if (args[0] instanceof RegExp) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for error instances if argument type is TYPE_OBJECT_ERROR", () => {
+		testAssertType(u.TYPE_OBJECT_ERROR, (fn, args) => {
+			if (!(args[0] instanceof Error)) throw new Error();
+		}, (fn, args) => {
+			if (args[0] instanceof Error) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for objects implementing the iterator interface if argument type is TYPE_OBJECT_ITERATOR", () => {
+		testAssertType(u.TYPE_OBJECT_ITERATOR, (fn, args) => {
+			if (!(args[0] instanceof Object) || !(Symbol.iterator in args[0])) throw new Error();
+		}, (fn, args) => {
+			if (args[0] instanceof Object && Symbol.iterator in args[0]) throw new Error();
+		});
+	});
 });
