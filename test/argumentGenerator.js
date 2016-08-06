@@ -260,4 +260,20 @@ describe("use", () => {
 			if (Array.isArray(args[0])) throw new Error();
 		});
 	});
+
+	it("should only trigger the return assertion for functions if argument type is TYPE_FUNCTION", () => {
+		testAssertType(u.TYPE_FUNCTION, (fn, args) => {
+			if (typeof args[0] !== 'function') throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'function') throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for generator functions is argument type is TYPE_FUNCTION_GENERATOR", () => {
+		testAssertType(u.TYPE_FUNCTION_GENERATOR, (fn, args) => {
+			if (typeof args[0] !== 'function' || args[0].constructor.name !== 'GeneratorFunction') throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'function' && args[0].constructor.name === 'GeneratorFunction') throw new Error();
+		});
+	});
 });
