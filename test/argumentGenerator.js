@@ -124,4 +124,52 @@ describe("use", () => {
 			if (typeof args[0] === 'boolean') throw new Error();
 		});
 	});
+
+	it("should only trigger the return assertion for number types if argument type is TYPE_NUMBER", () => {
+		testAssertType(u.TYPE_NUMBER, (fn, args) => {
+			if (typeof args[0] !== 'number') throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'number') throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for positive numbers if argument type is TYPE_NUMBER_POS", () => {
+		testAssertType(u.TYPE_NUMBER_POS, (fn, args) => {
+			if (typeof args[0] !== 'number' || args[0] < 0) throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'number' && args[0] >= 0) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for negative numbers if argument type is TYPE_NUMBER_NEG", () => {
+		testAssertType(u.TYPE_NUMBER_NEG, (fn, args) => {
+			if (typeof args[0] !== 'number' || args[0] > 0) throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'number' && args[0] <= 0) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for integer numbers if argument type is TYPE_NUMBER_INT", () => {
+		testAssertType(u.TYPE_NUMBER_INT, (fn, args) => {
+			if (!Number.isSafeInteger(args[0])) throw new Error();
+		}, (fn, args) => {
+			if (Number.isSafeInteger(args[0])) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for positive integer numbers if argument type is TYPE_NUMBER_INT_POS", () => {
+		testAssertType(u.TYPE_NUMBER_INT_POS, (fn, args) => {
+			if (!Number.isSafeInteger(args[0]) || args[0] < 0) throw new Error();
+		}, (fn, args) => {
+			if (Number.isSafeInteger(args[0]) && args[0] >= 0) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for negative integer numbers if argument type is TYPE_NUMBER_INT_NEG", () => {
+		testAssertType(u.TYPE_NUMBER_INT_NEG, (fn, args) => {
+			if (!Number.isSafeInteger(args[0]) || args[0] > 0) throw new Error();
+		}, (fn, args) => {
+			if (Number.isSafeInteger(args[0]) && args[0] <= 0) throw new Error();
+		});
+	});
 });
