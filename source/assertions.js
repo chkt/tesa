@@ -57,3 +57,11 @@ export function get() {
 		throw : assertions.throw
 	};
 }
+
+/**
+ * Resets the throw and return assertions
+ */
+export function reset() {
+	assertions.return = _defaultReturnAssertion;
+	assertions.throw = _defaultThrowAssertion;
+}
