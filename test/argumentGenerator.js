@@ -252,4 +252,12 @@ describe("use", () => {
 			if (args[0] instanceof Object && Symbol.iterator in args[0]) throw new Error();
 		});
 	});
+
+	it("should only trigger the return assertion for arrays if argument type is TYPE_ARRAY", () => {
+		testAssertType(u.TYPE_ARRAY, (fn, args) => {
+			if (!Array.isArray(args[0])) throw new Error();
+		}, (fn, args) => {
+			if (Array.isArray(args[0])) throw new Error();
+		});
+	});
 });
