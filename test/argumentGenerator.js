@@ -7,6 +7,17 @@ import * as assertions from '../source/assertions';
 
 
 
+function noop() {}
+
+
+function testAssertType(type, ret, thr) {
+	assertions.set(ret, thr);
+
+	assert.doesNotThrow(() => use([ type ], noop));
+}
+
+
+
 describe("u", () => {
 	it("should contain all TYPE_* constants", () => {
 		assert.strictEqual(typeof u.TYPE_UNDEFINED, 'symbol');
@@ -104,5 +115,13 @@ describe("use", () => {
 		assert.throws(() => use([ null ], { "1" : 1 }, testfn), TypeError);
 		assert.throws(() => use([ null ], [], testfn), TypeError);
 		assert.doesNotThrow(() => use([ null ], [ null], testfn));
+	});
+
+	it("should only trigger the return assertion for boolean types if argument type is TYPE_BOOLEAN", () => {
+		testAssertType(u.TYPE_BOOLEAN, (fn, args) => {
+			if (typeof args[0] !== 'boolean') throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'boolean') throw new Error();
+		});
 	});
 });
