@@ -167,7 +167,8 @@ function _isDefaultType(type) {
 			TYPE_OBJECT_ERROR,
 			TYPE_OBJECT_ITERATOR,
 			TYPE_ARRAY,
-			TYPE_FUNCTION
+			TYPE_FUNCTION,
+			TYPE_FUNCTION_GENERATOR
 		].indexOf(type) !== -1;
 }
 
