@@ -46,6 +46,7 @@ describe("u", () => {
 		assert.strictEqual(typeof u.TYPE_SYMBOL, 'symbol');
 
 		assert.strictEqual(typeof u.TYPE_OBJECT, 'symbol');
+		assert.strictEqual(typeof u.TYPE_OBJECT_LITERAL, 'symbol');
 		assert.strictEqual(typeof u.TYPE_OBJECT_REGEXP, 'symbol');
 		assert.strictEqual(typeof u.TYPE_OBJECT_ITERATOR, 'symbol');
 		assert.strictEqual(typeof u.TYPE_OBJECT_ERROR, 'symbol');
@@ -217,6 +218,14 @@ describe("use", () => {
 			if (typeof args[0] !== 'object' || args[0] === null) throw new Error();
 		}, (fn, args) => {
 			if (typeof args[0] === 'object' && args[0] !== null) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for Object instances of argument type is TYPE_OBJECT_LITERAL", () => {
+		testAssertType(u.TYPE_OBJECT_LITERAL, (fn, args) => {
+			if (!(args[0] instanceof Object) || args[0].constructor !== Object) throw new Error();
+		}, (fn, args) => {
+			if (args[0] instanceof Object && args[0].constructor === Object) throw new Error();
 		});
 	});
 });
