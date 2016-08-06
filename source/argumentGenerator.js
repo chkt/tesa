@@ -27,11 +27,10 @@ export const TYPE_STRING_NONEMPTY = Symbol("string: ^.+$");
 
 export const TYPE_SYMBOL = Symbol("symbol");
 
-export const TYPE_REGEXP = Symbol("regexp");
-
 export const TYPE_OBJECT = Symbol("object");
+export const TYPE_OBJECT_REGEXP = Symbol("object: RegExp");
 export const TYPE_OBJECT_ITERATOR = Symbol("object: #next()");
-export const TYPE_OBJECT_ERROR = Symbol("object: error");
+export const TYPE_OBJECT_ERROR = Symbol("object: Error");
 
 export const TYPE_ARRAY = Symbol("object: array");
 
@@ -46,8 +45,8 @@ const FLAG_TYPE_BOOLEAN = 0x04;
 const FLAG_TYPE_NUMBER = 0x08;
 const FLAG_TYPE_STRING = 0x10;
 const FLAG_TYPE_SYMBOL = 0x20;
-const FLAG_TYPE_REGEXP = 0x40;
 const FLAG_TYPE_OBJ = 0x80;
+const FLAG_TYPE_FUNCTION = 0x4000;
 
 const FLAG_NUM_NAN = 0x00100;
 const FLAG_NUM_INT = 0x00200;
@@ -61,11 +60,11 @@ const FLAG_NUM_MAX = 0x800000;
 const FLAG_STR_EMPTY = 0x00800;
 const FLAG_STR_CHARACTER = 0x01000;
 const FLAG_STR_NONEMPTY = 0x02000;
-const FLAG_OBJ_FN = 0x04000;
+const FLAG_OBJ_REGEXP = 0x40;
 const FLAG_OBJ_ARR = 0x08000;
 const FLAG_OBJ_ERR = 0x10000;
 const FLAG_OBJ_IT = 0x20000;
-const FLAG_OBJ_GEN = 0x40000;
+const FLAG_FN_GEN = 0x40000;
 
 
 const map = new Map([
@@ -89,13 +88,13 @@ const map = new Map([
 	[ TYPE_STRING_CHAR, FLAG_TYPE_STRING | FLAG_STR_CHARACTER | FLAG_STR_NONEMPTY ],
 	[ TYPE_STRING_NONEMPTY, FLAG_TYPE_STRING | FLAG_STR_NONEMPTY ],
 	[ TYPE_SYMBOL, FLAG_TYPE_SYMBOL ],
-	[ TYPE_REGEXP, FLAG_TYPE_REGEXP ],
 	[ TYPE_OBJECT, FLAG_TYPE_OBJ ],
+	[ TYPE_OBJECT_REGEXP, FLAG_TYPE_OBJ | FLAG_OBJ_REGEXP ],
 	[ TYPE_OBJECT_ITERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_IT ],
 	[ TYPE_OBJECT_ERROR, FLAG_TYPE_OBJ | FLAG_OBJ_ERR ],
 	[ TYPE_ARRAY, FLAG_TYPE_OBJ | FLAG_OBJ_ARR ],
-	[ TYPE_FUNCTION, FLAG_TYPE_OBJ | FLAG_OBJ_FN ],
-	[ TYPE_FUNCTION_GENERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_GEN ]
+	[ TYPE_FUNCTION, FLAG_TYPE_FUNCTION ],
+	[ TYPE_FUNCTION_GENERATOR, FLAG_TYPE_FUNCTION | FLAG_FN_GEN ]
 ]);
 
 
@@ -120,8 +119,8 @@ const TYPES = Object.freeze([
 	TYPE_STRING_CHAR,
 	TYPE_STRING_NONEMPTY,
 	TYPE_SYMBOL,
-	TYPE_REGEXP,
 	TYPE_OBJECT,
+	TYPE_OBJECT_REGEXP,
 	TYPE_OBJECT_ITERATOR,
 	TYPE_OBJECT_ERROR,
 	TYPE_ARRAY,
@@ -158,8 +157,8 @@ function _isDefaultType(type) {
 			TYPE_STRING_CHAR,
 			TYPE_STRING_NONEMPTY,
 			TYPE_SYMBOL,
-			TYPE_REGEXP,
 			TYPE_OBJECT,
+			TYPE_OBJECT_REGEXP,
 			TYPE_OBJECT_ERROR,
 			TYPE_ARRAY,
 			TYPE_FUNCTION
@@ -252,8 +251,8 @@ function _getArgument(type) {
 		case TYPE_STRING_CHAR : return 'a';
 		case TYPE_STRING_NONEMPTY : return 'abc';
 		case TYPE_SYMBOL : return Symbol(`Symbol#${ ++nextSymbol }`);
-		case TYPE_REGEXP : return /^$/;
 		case TYPE_OBJECT : return {};
+		case TYPE_OBJECT_REGEXP : return /^$/;
 		case TYPE_OBJECT_ERROR : return new Error();
 		case TYPE_OBJECT_ITERATOR : return {};  //IMPLEMENT
 		case TYPE_ARRAY : return [];
