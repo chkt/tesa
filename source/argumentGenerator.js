@@ -28,6 +28,7 @@ export const TYPE_STRING_NONEMPTY = Symbol("string: ^.+$");
 export const TYPE_SYMBOL = Symbol("symbol");
 
 export const TYPE_OBJECT = Symbol("object");
+export const TYPE_OBJECT_LITERAL = Symbol("object: {}");
 export const TYPE_OBJECT_REGEXP = Symbol("object: RegExp");
 export const TYPE_OBJECT_ITERATOR = Symbol("object: #next()");
 export const TYPE_OBJECT_ERROR = Symbol("object: Error");
@@ -60,6 +61,7 @@ const FLAG_NUM_MAX = 0x800000;
 const FLAG_STR_EMPTY = 0x00800;
 const FLAG_STR_CHARACTER = 0x01000;
 const FLAG_STR_NONEMPTY = 0x02000;
+const FLAG_OBJ_LITERAL = 0x4000000;
 const FLAG_OBJ_REGEXP = 0x40;
 const FLAG_OBJ_ARR = 0x08000;
 const FLAG_OBJ_ERR = 0x10000;
@@ -89,10 +91,11 @@ const map = new Map([
 	[ TYPE_STRING_NONEMPTY, FLAG_TYPE_STRING | FLAG_STR_NONEMPTY ],
 	[ TYPE_SYMBOL, FLAG_TYPE_SYMBOL ],
 	[ TYPE_OBJECT, FLAG_TYPE_OBJ ],
+	[ TYPE_OBJECT_LITERAL, FLAG_TYPE_OBJ | FLAG_OBJ_LITERAL ],
 	[ TYPE_OBJECT_REGEXP, FLAG_TYPE_OBJ | FLAG_OBJ_REGEXP ],
-	[ TYPE_OBJECT_ITERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_IT ],
 	[ TYPE_OBJECT_ERROR, FLAG_TYPE_OBJ | FLAG_OBJ_ERR ],
-	[ TYPE_ARRAY, FLAG_TYPE_OBJ | FLAG_OBJ_ARR ],
+	[ TYPE_OBJECT_ITERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_IT ],
+	[ TYPE_ARRAY, FLAG_TYPE_OBJ | FLAG_OBJ_ARR | FLAG_OBJ_IT ],
 	[ TYPE_FUNCTION, FLAG_TYPE_FUNCTION ],
 	[ TYPE_FUNCTION_GENERATOR, FLAG_TYPE_FUNCTION | FLAG_FN_GEN ]
 ]);
@@ -120,9 +123,10 @@ const TYPES = Object.freeze([
 	TYPE_STRING_NONEMPTY,
 	TYPE_SYMBOL,
 	TYPE_OBJECT,
+	TYPE_OBJECT_LITERAL,
 	TYPE_OBJECT_REGEXP,
-	TYPE_OBJECT_ITERATOR,
 	TYPE_OBJECT_ERROR,
+	TYPE_OBJECT_ITERATOR,
 	TYPE_ARRAY,
 	TYPE_FUNCTION,
 	TYPE_FUNCTION_GENERATOR
@@ -158,8 +162,10 @@ function _isDefaultType(type) {
 			TYPE_STRING_NONEMPTY,
 			TYPE_SYMBOL,
 			TYPE_OBJECT,
+			TYPE_OBJECT_LITERAL,
 			TYPE_OBJECT_REGEXP,
 			TYPE_OBJECT_ERROR,
+			TYPE_OBJECT_ITERATOR,
 			TYPE_ARRAY,
 			TYPE_FUNCTION
 		].indexOf(type) !== -1;
@@ -191,7 +197,8 @@ function _getFilteredTypes(list) {
 		TYPE_NUMBER,
 		TYPE_NUMBER_INT,
 		TYPE_NUMBER_INT_POS,
-		TYPE_STRING
+		TYPE_STRING,
+		TYPE_OBJECT
 	];
 
 	list.forEach((item, index, source) => {
@@ -251,10 +258,10 @@ function _getArgument(type) {
 		case TYPE_STRING_CHAR : return 'a';
 		case TYPE_STRING_NONEMPTY : return 'abc';
 		case TYPE_SYMBOL : return Symbol(`Symbol#${ ++nextSymbol }`);
-		case TYPE_OBJECT : return {};
+		case TYPE_OBJECT_LITERAL : return {};
 		case TYPE_OBJECT_REGEXP : return /^$/;
 		case TYPE_OBJECT_ERROR : return new Error();
-		case TYPE_OBJECT_ITERATOR : return {};  //IMPLEMENT
+		case TYPE_OBJECT_ITERATOR : return (function*() {})();
 		case TYPE_ARRAY : return [];
 		case TYPE_FUNCTION : return () => null;
 		case TYPE_FUNCTION_GENERATOR : return function* () {};
