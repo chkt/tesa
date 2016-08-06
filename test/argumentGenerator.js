@@ -172,4 +172,44 @@ describe("use", () => {
 			if (Number.isSafeInteger(args[0]) && args[0] <= 0) throw new Error();
 		});
 	});
+
+	it("should only trigger the return assertion for strings if argument type is TYPE_STRING", () => {
+		testAssertType(u.TYPE_STRING, (fn, args) => {
+			if (typeof args[0] !== 'string') throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'string') throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for empty strings if argument type is TYPE_STRING_EMPTY", () => {
+		testAssertType(u.TYPE_STRING_EMPTY, (fn, args) => {
+			if (args[0] !== '') throw new Error();
+		}, (fn, args) => {
+			if (args[0] === '') throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for single character strings if argument type is TYPE_STRING_CHAR", () => {
+		testAssertType(u.TYPE_STRING_CHAR, (fn, args) => {
+			if (typeof args[0] !== 'string' || args[0].length !== 1) throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'string' && args[0].length === 1) throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for nonempty strings if argument type is TYPE_STRING_NONEMPTY", () => {
+		testAssertType(u.TYPE_STRING_NONEMPTY, (fn, args) => {
+			if (typeof args[0] !== 'string' || args[0] === '') throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'string' && args[0] !== '') throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for symbols if argument type is TYPE_SYMBOL", () => {
+		testAssertType(u.TYPE_SYMBOL, (fn, args) => {
+			if (typeof args[0] !== 'symbol') throw new Error();
+		}, (fn, args) => {
+			if (typeof args[0] === 'symbol') throw new Error();
+		});
+	});
 });
