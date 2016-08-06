@@ -276,4 +276,29 @@ describe("use", () => {
 			if (typeof args[0] === 'function' && args[0].constructor.name === 'GeneratorFunction') throw new Error();
 		});
 	});
+
+	it("should only trigger the return assertion for injected objects for other arguments", () => {
+		const args = [
+			1234567890,
+			"1234567890",
+			Symbol("1234567890"),
+			{},
+			/^$/,
+			new Error(),
+			(function* () {
+				yield null;
+			})(),
+			[],
+			() => null,
+			function* () {
+				yield null;
+			}
+		];
+
+		for (let arg of args) testAssertType(arg, (fn, args) => {
+			if (args[0] !== arg) throw new Error();
+		}, (fn, args) => {
+			if (args[0] === arg) throw new Error();
+		});
+	});
 });
