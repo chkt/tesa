@@ -14,7 +14,9 @@ describe("assertions", () => {
 			assert.strictEqual(typeof ret.throw, 'function');
 		});
 
-		it("should contain the default assertion functions", () => {
+		it("should contain the default assertion functions if unchanged", () => {
+			assertions.reset();
+
 			const ret = assertions.get();
 
 			ret.return(() => true, []);
@@ -68,6 +70,26 @@ describe("assertions", () => {
 
 			assert.strictEqual(ret.return, fnB);
 			assert.strictEqual(ret.throw, fnA);
+		});
+	});
+
+	describe("reset", () => {
+		it("should reenable the default assertions", () => {
+			const fnA = (fn, args) => 1;
+			const fnB = (fn, args) => 1;
+
+			assertions.set(fnA, fnB),
+			assertions.reset();
+
+			const ret = assertions.get();
+
+			assert.notStrictEqual(fnA, ret.return);
+			assert.notStrictEqual(fnB, ret.throw);
+
+			ret.return(() => true, []);
+			ret.throw(() => {
+				throw new Error();
+			}, []);
 		});
 	});
 });
