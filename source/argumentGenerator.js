@@ -39,7 +39,8 @@ export const TYPE_FUNCTION = Symbol("function");
 export const TYPE_FUNCTION_GENERATOR = Symbol("function*");
 
 
-const FLAG_TYPE_NONE = 0x80000;
+const FLAG_TYPE_VALID = 0x80000;
+
 const FLAG_TYPE_UNDEFINED = 0x01;
 const FLAG_TYPE_NULL = 0x02;
 const FLAG_TYPE_BOOLEAN = 0x04;
@@ -188,7 +189,7 @@ function _isValid(args) {
 }
 
 function _getFlags(item) {
-	return _isType(item) ? map.get(item) : FLAG_TYPE_NONE;
+	return _isType(item) ? map.get(item) : FLAG_TYPE_VALID;
 }
 
 function _getFilteredTypes(list) {
@@ -230,7 +231,7 @@ function _getNumber(positive, integer, min, max) {
 
 
 function _isValidArgument(list, flags) {
-	if (flags === FLAG_TYPE_NONE) return true;
+	if (flags === FLAG_TYPE_VALID) return true;
 
 	return list.some((item, index, source) => {
 		const itemFlags = _getFlags(item);
