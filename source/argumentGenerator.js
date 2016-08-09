@@ -137,10 +137,40 @@ const TYPES = Object.freeze([
 
 let nextSymbol = 0;
 
+const clientSymbol = [];
+const clientValue = [];
+
 
 
 function _isType(type) {
 	return TYPES.indexOf(type) !== -1;
+}
+
+
+function _getClientType(item) {
+	let index = clientValue.indexOf(item);
+
+	if (index === -1) {
+		index = clientSymbol.length;
+
+		clientSymbol.push(Symbol(`client#${ index }`));
+		clientValue.push(item);
+	}
+
+	return clientSymbol[index];
+}
+
+function _getClientValue(symbol) {
+	const index = clientSymbol.indexOf(symbol);
+
+	if (index === -1) throw new Error("foo");
+
+	return clientValue[index];
+}
+
+function _clearClientCache() {
+	clientValue.splice(0, clientValue.length);
+	clientSymbol.splice(0, clientSymbol.length);
 }
 
 
@@ -174,7 +204,7 @@ function _getFilteredTypes(list) {
 	];
 
 	list.forEach((item, index, source) => {
-		if (!_isType(item)) types.push(item);
+		if (!_isType(item)) types.push(_getClientType(item));
 	});
 
 	return types.filter((item, index, source) => filter.indexOf(item) === -1);
@@ -184,8 +214,14 @@ function _getDefaultSpecs(args) {
 	return args.map((item, index, source) => {
 		let type, valid;
 
-		if (item.length !== 0) type = item[0], valid = true;
-		else type = TYPE_UNDEFINED, valid = false;
+		if (item.length !== 0) {
+			type = _isType(item[0]) ? item[0] : _getClientType(item[0]);
+			valid = true;
+		}
+		else {
+			type = TYPE_UNDEFINED;
+			valid = false;
+		}
 
 		return {
 			index,
@@ -247,13 +283,15 @@ function _getArgument(type) {
 		case TYPE_ARRAY : return [];
 		case TYPE_FUNCTION : return () => null;
 		case TYPE_FUNCTION_GENERATOR : return function* () {};
-		default : return type;
+		default : return _getClientValue(type);
 	}
 }
 
 
 function* generator(...validTypes) {
 	if (!_isValid(validTypes)) throw new TypeError();
+
+	_clearClientCache();
 
 	const defaults = _getDefaultSpecs(validTypes);
 	const defValid = defaults.every((item, index, source) => item.valid);
