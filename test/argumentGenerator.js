@@ -164,12 +164,27 @@ describe("use", () => {
 		assert.strictEqual(num, used);
 
 		types = testUseTypes([ u.TYPE_BOOLEAN ], [ u.TYPE_BOOLEAN ]);
-
 		num = 0, used = 0;
 
 		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
 
 		assert.strictEqual(used, num * 4);
+	});
+
+	it("should test injected arguments against each default argument and all injected arguments", () => {
+		let types = testUseTypes([ "foo" ]);
+		let num = 0, used = 0;
+
+		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
+
+		assert.strictEqual(num, used);
+
+		types = testUseTypes([ "bar" ], [ "baz" ]);
+		num = 0, used = 0;
+
+		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
+
+		assert.strictEqual(used, (num - 1) * 4);
 	});
 
 	it("should only trigger the return assertion for boolean types if argument type is TYPE_BOOLEAN", () => {
