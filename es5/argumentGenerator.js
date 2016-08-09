@@ -3,47 +3,52 @@
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.TYPE_OBJ_GENERATOR = exports.TYPE_OBJ_ITERATOR = exports.TYPE_OBJ_ERR = exports.TYPE_OBJ_ARR = exports.TYPE_OBJ_FN = exports.TYPE_OBJ = exports.TYPE_REGEXP = exports.TYPE_SYMBOL = exports.TYPE_STRING_NONEMPTY = exports.TYPE_STRING_CHAR = exports.TYPE_STRING_EMPTY = exports.TYPE_STRING = exports.TYPE_NUMBER_INT_POS_MAX = exports.TYPE_NUMBER_INT_POS_32 = exports.TYPE_NUMBER_INT_POS_24 = exports.TYPE_NUMBER_INT_POS_16 = exports.TYPE_NUMBER_INT_POS_8 = exports.TYPE_NUMBER_INT_NEG = exports.TYPE_NUMBER_INT_POS = exports.TYPE_NUMBER_INT = exports.TYPE_NUMBER_NEG = exports.TYPE_NUMBER_POS = exports.TYPE_NUMBER_NAN = exports.TYPE_NUMBER = exports.TYPE_BOOLEAN = exports.TYPE_NULL = exports.TYPE_UNDEFINED = undefined;
-exports.default = generator;
-exports.test = test;
+exports.setAssertions = exports.TYPE_FUNCTION_GENERATOR = exports.TYPE_FUNCTION = exports.TYPE_ARRAY = exports.TYPE_OBJECT_ERROR = exports.TYPE_OBJECT_ITERATOR = exports.TYPE_OBJECT_REGEXP = exports.TYPE_OBJECT_LITERAL = exports.TYPE_OBJECT = exports.TYPE_SYMBOL = exports.TYPE_STRING_NONEMPTY = exports.TYPE_STRING_CHAR = exports.TYPE_STRING_EMPTY = exports.TYPE_STRING = exports.TYPE_NUMBER_INT_NEG = exports.TYPE_NUMBER_INT_POS_MAX = exports.TYPE_NUMBER_INT_POS_32 = exports.TYPE_NUMBER_INT_POS_24 = exports.TYPE_NUMBER_INT_POS_16 = exports.TYPE_NUMBER_INT_POS_8 = exports.TYPE_NUMBER_INT_POS = exports.TYPE_NUMBER_INT = exports.TYPE_NUMBER_NEG = exports.TYPE_NUMBER_POS = exports.TYPE_NUMBER_NAN = exports.TYPE_NUMBER = exports.TYPE_BOOLEAN = exports.TYPE_NULL = exports.TYPE_UNDEFINED = undefined;
+exports.default = use;
 
-var _assert2 = require("assert");
+var _assertions = require("./assertions");
 
-var _assert3 = _interopRequireDefault(_assert2);
+var assertions = _interopRequireWildcard(_assertions);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var _marked = [generator].map(regeneratorRuntime.mark);
 
 var TYPE_UNDEFINED = exports.TYPE_UNDEFINED = Symbol("undefined");
 var TYPE_NULL = exports.TYPE_NULL = Symbol("null");
+
 var TYPE_BOOLEAN = exports.TYPE_BOOLEAN = Symbol("boolean");
+
 var TYPE_NUMBER = exports.TYPE_NUMBER = Symbol("number");
 var TYPE_NUMBER_NAN = exports.TYPE_NUMBER_NAN = Symbol("NaN");
 var TYPE_NUMBER_POS = exports.TYPE_NUMBER_POS = Symbol("number: n>=0");
 var TYPE_NUMBER_NEG = exports.TYPE_NUMBER_NEG = Symbol("number: n<=0");
 var TYPE_NUMBER_INT = exports.TYPE_NUMBER_INT = Symbol("number: n%1==0");
 var TYPE_NUMBER_INT_POS = exports.TYPE_NUMBER_INT_POS = Symbol("number: n%1==0&&n>=0");
-var TYPE_NUMBER_INT_NEG = exports.TYPE_NUMBER_INT_NEG = Symbol("number: n%1==0&&n<=0");
 var TYPE_NUMBER_INT_POS_8 = exports.TYPE_NUMBER_INT_POS_8 = Symbol("number: n%1==0%%n>=0&&n<(1<<7)");
 var TYPE_NUMBER_INT_POS_16 = exports.TYPE_NUMBER_INT_POS_16 = Symbol("number: n%1==0&&n>=0&&n<(1<<15)");
 var TYPE_NUMBER_INT_POS_24 = exports.TYPE_NUMBER_INT_POS_24 = Symbol("number: n%1==0&&n>=0&&n<(1<<23)");
 var TYPE_NUMBER_INT_POS_32 = exports.TYPE_NUMBER_INT_POS_32 = Symbol("number: n%1==0&&n>=0&&n<(1<<31)");
 var TYPE_NUMBER_INT_POS_MAX = exports.TYPE_NUMBER_INT_POS_MAX = Symbol("number: n%1==0&&n>=0");
+var TYPE_NUMBER_INT_NEG = exports.TYPE_NUMBER_INT_NEG = Symbol("number: n%1==0&&n<=0");
+
 var TYPE_STRING = exports.TYPE_STRING = Symbol("string");
 var TYPE_STRING_EMPTY = exports.TYPE_STRING_EMPTY = Symbol("string: ^$");
 var TYPE_STRING_CHAR = exports.TYPE_STRING_CHAR = Symbol("string: ^.$");
 var TYPE_STRING_NONEMPTY = exports.TYPE_STRING_NONEMPTY = Symbol("string: ^.+$");
+
 var TYPE_SYMBOL = exports.TYPE_SYMBOL = Symbol("symbol");
-var TYPE_REGEXP = exports.TYPE_REGEXP = Symbol("regexp");
-var TYPE_OBJ = exports.TYPE_OBJ = Symbol("object");
-var TYPE_OBJ_FN = exports.TYPE_OBJ_FN = Symbol("function");
-var TYPE_OBJ_ARR = exports.TYPE_OBJ_ARR = Symbol("object: array");
-var TYPE_OBJ_ERR = exports.TYPE_OBJ_ERR = Symbol("object: error");
-var TYPE_OBJ_ITERATOR = exports.TYPE_OBJ_ITERATOR = Symbol("object: #next()");
-var TYPE_OBJ_GENERATOR = exports.TYPE_OBJ_GENERATOR = Symbol("function*");
+
+var TYPE_OBJECT = exports.TYPE_OBJECT = Symbol("object");
+var TYPE_OBJECT_LITERAL = exports.TYPE_OBJECT_LITERAL = Symbol("object: {}");
+var TYPE_OBJECT_REGEXP = exports.TYPE_OBJECT_REGEXP = Symbol("object: RegExp");
+var TYPE_OBJECT_ITERATOR = exports.TYPE_OBJECT_ITERATOR = Symbol("object: #next()");
+var TYPE_OBJECT_ERROR = exports.TYPE_OBJECT_ERROR = Symbol("object: Error");
+
+var TYPE_ARRAY = exports.TYPE_ARRAY = Symbol("object: array");
+
+var TYPE_FUNCTION = exports.TYPE_FUNCTION = Symbol("function");
+var TYPE_FUNCTION_GENERATOR = exports.TYPE_FUNCTION_GENERATOR = Symbol("function*");
 
 var FLAG_TYPE_NONE = 0x80000;
 var FLAG_TYPE_UNDEFINED = 0x01;
@@ -52,8 +57,8 @@ var FLAG_TYPE_BOOLEAN = 0x04;
 var FLAG_TYPE_NUMBER = 0x08;
 var FLAG_TYPE_STRING = 0x10;
 var FLAG_TYPE_SYMBOL = 0x20;
-var FLAG_TYPE_REGEXP = 0x40;
 var FLAG_TYPE_OBJ = 0x80;
+var FLAG_TYPE_FUNCTION = 0x4000;
 
 var FLAG_NUM_NAN = 0x00100;
 var FLAG_NUM_INT = 0x00200;
@@ -67,15 +72,16 @@ var FLAG_NUM_MAX = 0x800000;
 var FLAG_STR_EMPTY = 0x00800;
 var FLAG_STR_CHARACTER = 0x01000;
 var FLAG_STR_NONEMPTY = 0x02000;
-var FLAG_OBJ_FN = 0x04000;
+var FLAG_OBJ_LITERAL = 0x4000000;
+var FLAG_OBJ_REGEXP = 0x40;
 var FLAG_OBJ_ARR = 0x08000;
 var FLAG_OBJ_ERR = 0x10000;
 var FLAG_OBJ_IT = 0x20000;
-var FLAG_OBJ_GEN = 0x40000;
+var FLAG_FN_GEN = 0x40000;
 
-var map = new Map([[TYPE_UNDEFINED, FLAG_TYPE_UNDEFINED], [TYPE_NULL, FLAG_TYPE_NULL], [TYPE_BOOLEAN, FLAG_TYPE_BOOLEAN], [TYPE_NUMBER, FLAG_TYPE_NUMBER], [TYPE_NUMBER_NAN, FLAG_TYPE_NUMBER | FLAG_NUM_NAN], [TYPE_NUMBER_POS, FLAG_TYPE_NUMBER | FLAG_NUM_POS], [TYPE_NUMBER_NEG, FLAG_TYPE_NUMBER | FLAG_NUM_NEG], [TYPE_NUMBER_INT, FLAG_TYPE_NUMBER | FLAG_NUM_INT], [TYPE_NUMBER_INT_POS, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS], [TYPE_NUMBER_INT_NEG, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_NEG], [TYPE_NUMBER_INT_POS_8, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_8 | FLAG_NUM_16 | FLAG_NUM_24 | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_16, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_16 | FLAG_NUM_24 | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_24, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_24 | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_32, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_MAX, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_MAX], [TYPE_STRING, FLAG_TYPE_STRING], [TYPE_STRING_EMPTY, FLAG_TYPE_STRING | FLAG_STR_EMPTY], [TYPE_STRING_CHAR, FLAG_TYPE_STRING | FLAG_STR_CHARACTER | FLAG_STR_NONEMPTY], [TYPE_STRING_NONEMPTY, FLAG_TYPE_STRING | FLAG_STR_NONEMPTY], [TYPE_SYMBOL, FLAG_TYPE_SYMBOL], [TYPE_REGEXP, FLAG_TYPE_REGEXP], [TYPE_OBJ, FLAG_TYPE_OBJ], [TYPE_OBJ_FN, FLAG_TYPE_OBJ | FLAG_OBJ_FN], [TYPE_OBJ_ARR, FLAG_TYPE_OBJ | FLAG_OBJ_ARR], [TYPE_OBJ_ERR, FLAG_TYPE_OBJ | FLAG_OBJ_ERR], [TYPE_OBJ_ITERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_IT], [TYPE_OBJ_GENERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_GEN]]);
+var map = new Map([[TYPE_UNDEFINED, FLAG_TYPE_UNDEFINED], [TYPE_NULL, FLAG_TYPE_NULL], [TYPE_BOOLEAN, FLAG_TYPE_BOOLEAN], [TYPE_NUMBER, FLAG_TYPE_NUMBER], [TYPE_NUMBER_NAN, FLAG_TYPE_NUMBER | FLAG_NUM_NAN], [TYPE_NUMBER_POS, FLAG_TYPE_NUMBER | FLAG_NUM_POS], [TYPE_NUMBER_NEG, FLAG_TYPE_NUMBER | FLAG_NUM_NEG], [TYPE_NUMBER_INT, FLAG_TYPE_NUMBER | FLAG_NUM_INT], [TYPE_NUMBER_INT_POS, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS], [TYPE_NUMBER_INT_NEG, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_NEG], [TYPE_NUMBER_INT_POS_8, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_8 | FLAG_NUM_16 | FLAG_NUM_24 | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_16, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_16 | FLAG_NUM_24 | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_24, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_24 | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_32, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_32 | FLAG_NUM_MAX], [TYPE_NUMBER_INT_POS_MAX, FLAG_TYPE_NUMBER | FLAG_NUM_INT | FLAG_NUM_POS | FLAG_NUM_MAX], [TYPE_STRING, FLAG_TYPE_STRING], [TYPE_STRING_EMPTY, FLAG_TYPE_STRING | FLAG_STR_EMPTY], [TYPE_STRING_CHAR, FLAG_TYPE_STRING | FLAG_STR_CHARACTER | FLAG_STR_NONEMPTY], [TYPE_STRING_NONEMPTY, FLAG_TYPE_STRING | FLAG_STR_NONEMPTY], [TYPE_SYMBOL, FLAG_TYPE_SYMBOL], [TYPE_OBJECT, FLAG_TYPE_OBJ], [TYPE_OBJECT_LITERAL, FLAG_TYPE_OBJ | FLAG_OBJ_LITERAL], [TYPE_OBJECT_REGEXP, FLAG_TYPE_OBJ | FLAG_OBJ_REGEXP], [TYPE_OBJECT_ERROR, FLAG_TYPE_OBJ | FLAG_OBJ_ERR], [TYPE_OBJECT_ITERATOR, FLAG_TYPE_OBJ | FLAG_OBJ_IT], [TYPE_ARRAY, FLAG_TYPE_OBJ | FLAG_OBJ_ARR | FLAG_OBJ_IT], [TYPE_FUNCTION, FLAG_TYPE_FUNCTION], [TYPE_FUNCTION_GENERATOR, FLAG_TYPE_FUNCTION | FLAG_FN_GEN]]);
 
-var TYPES = Object.freeze([TYPE_UNDEFINED, TYPE_NULL, TYPE_BOOLEAN, TYPE_NUMBER, TYPE_NUMBER_NAN, TYPE_NUMBER_POS, TYPE_NUMBER_NEG, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_NUMBER_INT_NEG, TYPE_NUMBER_INT_POS_8, TYPE_NUMBER_INT_POS_16, TYPE_NUMBER_INT_POS_24, TYPE_NUMBER_INT_POS_32, TYPE_NUMBER_INT_POS_MAX, TYPE_STRING, TYPE_STRING_EMPTY, TYPE_STRING_CHAR, TYPE_STRING_NONEMPTY, TYPE_SYMBOL, TYPE_REGEXP, TYPE_OBJ, TYPE_OBJ_FN, TYPE_OBJ_ARR, TYPE_OBJ_ERR, TYPE_OBJ_ITERATOR, TYPE_OBJ_GENERATOR]);
+var TYPES = Object.freeze([TYPE_UNDEFINED, TYPE_NULL, TYPE_BOOLEAN, TYPE_NUMBER, TYPE_NUMBER_NAN, TYPE_NUMBER_POS, TYPE_NUMBER_NEG, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_NUMBER_INT_NEG, TYPE_NUMBER_INT_POS_8, TYPE_NUMBER_INT_POS_16, TYPE_NUMBER_INT_POS_24, TYPE_NUMBER_INT_POS_32, TYPE_NUMBER_INT_POS_MAX, TYPE_STRING, TYPE_STRING_EMPTY, TYPE_STRING_CHAR, TYPE_STRING_NONEMPTY, TYPE_SYMBOL, TYPE_OBJECT, TYPE_OBJECT_LITERAL, TYPE_OBJECT_REGEXP, TYPE_OBJECT_ERROR, TYPE_OBJECT_ITERATOR, TYPE_ARRAY, TYPE_FUNCTION, TYPE_FUNCTION_GENERATOR]);
 
 var nextSymbol = 0;
 
@@ -84,7 +90,7 @@ function _isType(type) {
 }
 
 function _isDefaultType(type) {
-	return !_isType(type) || [TYPE_BOOLEAN, TYPE_NUMBER, TYPE_NUMBER_POS, TYPE_NUMBER_NEG, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_NUMBER_INT_NEG, TYPE_NUMBER_INT_POS_8, TYPE_NUMBER_INT_POS_16, TYPE_NUMBER_INT_POS_24, TYPE_NUMBER_INT_POS_32, TYPE_NUMBER_INT_POS_MAX, TYPE_STRING, TYPE_STRING_EMPTY, TYPE_STRING_NONEMPTY, TYPE_SYMBOL, TYPE_REGEXP, TYPE_OBJ, TYPE_OBJ_FN, TYPE_OBJ_ARR, TYPE_OBJ_ERR].indexOf(type) !== -1;
+	return !_isType(type) || [TYPE_BOOLEAN, TYPE_NUMBER, TYPE_NUMBER_POS, TYPE_NUMBER_NEG, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_NUMBER_INT_NEG, TYPE_NUMBER_INT_POS_8, TYPE_NUMBER_INT_POS_16, TYPE_NUMBER_INT_POS_24, TYPE_NUMBER_INT_POS_32, TYPE_NUMBER_INT_POS_MAX, TYPE_STRING, TYPE_STRING_EMPTY, TYPE_STRING_CHAR, TYPE_STRING_NONEMPTY, TYPE_SYMBOL, TYPE_OBJECT, TYPE_OBJECT_LITERAL, TYPE_OBJECT_REGEXP, TYPE_OBJECT_ERROR, TYPE_OBJECT_ITERATOR, TYPE_ARRAY, TYPE_FUNCTION, TYPE_FUNCTION_GENERATOR].indexOf(type) !== -1;
 }
 
 function _isValid(args) {
@@ -106,7 +112,7 @@ function _getFlags(item) {
 function _getFilteredTypes(list) {
 	var types = TYPES.slice(0);
 
-	var filter = [TYPE_NUMBER, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_STRING];
+	var filter = [TYPE_NUMBER, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_STRING, TYPE_OBJECT];
 
 	list.forEach(function (item, index, source) {
 		if (!_isType(item)) types.push(item);
@@ -202,22 +208,14 @@ function _getArgument(type) {
 			return 'abc';
 		case TYPE_SYMBOL:
 			return Symbol("Symbol#" + ++nextSymbol);
-		case TYPE_REGEXP:
+		case TYPE_OBJECT_LITERAL:
+			return {};
+		case TYPE_OBJECT_REGEXP:
 			return (/^$/
 			);
-		case TYPE_OBJ:
-			return {};
-		case TYPE_OBJ_FN:
-			return function () {
-				return null;
-			};
-		case TYPE_OBJ_ARR:
-			return [];
-		case TYPE_OBJ_ERR:
+		case TYPE_OBJECT_ERROR:
 			return new Error();
-		case TYPE_OBJ_ITERATOR:
-			return {}; //IMPLEMENT
-		case TYPE_OBJ_GENERATOR:
+		case TYPE_OBJECT_ITERATOR:
 			return regeneratorRuntime.mark(function _callee() {
 				return regeneratorRuntime.wrap(function _callee$(_context) {
 					while (1) {
@@ -228,6 +226,24 @@ function _getArgument(type) {
 						}
 					}
 				}, _callee, this);
+			})();
+		case TYPE_ARRAY:
+			return [];
+		case TYPE_FUNCTION:
+			return function () {
+				return null;
+			};
+		case TYPE_FUNCTION_GENERATOR:
+			return regeneratorRuntime.mark(function _callee2() {
+				return regeneratorRuntime.wrap(function _callee2$(_context2) {
+					while (1) {
+						switch (_context2.prev = _context2.next) {
+							case 0:
+							case "end":
+								return _context2.stop();
+						}
+					}
+				}, _callee2, this);
 			});
 		default:
 			return type;
@@ -241,12 +257,12 @@ function generator() {
 
 	var defaultArgs, i, args, list, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, type, flags, value;
 
-	return regeneratorRuntime.wrap(function generator$(_context2) {
+	return regeneratorRuntime.wrap(function generator$(_context3) {
 		while (1) {
-			switch (_context2.prev = _context2.next) {
+			switch (_context3.prev = _context3.next) {
 				case 0:
 					if (_isValid(validTypes)) {
-						_context2.next = 2;
+						_context3.next = 2;
 						break;
 					}
 
@@ -258,7 +274,7 @@ function generator() {
 
 				case 4:
 					if (!(i > -1)) {
-						_context2.next = 38;
+						_context3.next = 38;
 						break;
 					}
 
@@ -267,12 +283,12 @@ function generator() {
 					_iteratorNormalCompletion2 = true;
 					_didIteratorError2 = false;
 					_iteratorError2 = undefined;
-					_context2.prev = 10;
+					_context3.prev = 10;
 					_iterator2 = _getFilteredTypes(list)[Symbol.iterator]();
 
 				case 12:
 					if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-						_context2.next = 21;
+						_context3.next = 21;
 						break;
 					}
 
@@ -282,7 +298,7 @@ function generator() {
 
 					args.splice(i, 1, value);
 
-					_context2.next = 18;
+					_context3.next = 18;
 					return {
 						valid: _isValidArgument(list, flags),
 						items: args.slice(0)
@@ -290,57 +306,62 @@ function generator() {
 
 				case 18:
 					_iteratorNormalCompletion2 = true;
-					_context2.next = 12;
+					_context3.next = 12;
 					break;
 
 				case 21:
-					_context2.next = 27;
+					_context3.next = 27;
 					break;
 
 				case 23:
-					_context2.prev = 23;
-					_context2.t0 = _context2["catch"](10);
+					_context3.prev = 23;
+					_context3.t0 = _context3["catch"](10);
 					_didIteratorError2 = true;
-					_iteratorError2 = _context2.t0;
+					_iteratorError2 = _context3.t0;
 
 				case 27:
-					_context2.prev = 27;
-					_context2.prev = 28;
+					_context3.prev = 27;
+					_context3.prev = 28;
 
 					if (!_iteratorNormalCompletion2 && _iterator2.return) {
 						_iterator2.return();
 					}
 
 				case 30:
-					_context2.prev = 30;
+					_context3.prev = 30;
 
 					if (!_didIteratorError2) {
-						_context2.next = 33;
+						_context3.next = 33;
 						break;
 					}
 
 					throw _iteratorError2;
 
 				case 33:
-					return _context2.finish(30);
+					return _context3.finish(30);
 
 				case 34:
-					return _context2.finish(27);
+					return _context3.finish(27);
 
 				case 35:
 					i -= 1;
-					_context2.next = 4;
+					_context3.next = 4;
 					break;
 
 				case 38:
 				case "end":
-					return _context2.stop();
+					return _context3.stop();
 			}
 		}
 	}, _marked[0], this, [[10, 23, 27, 35], [28,, 30, 34]]);
 }
 
-function test() {
+/**
+ * Creates a list of arguments and tests against the last argument
+ * @param {...*} args
+ * @throws {TypeError} if the last argument is not a function
+ */
+function use() {
 	for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
 		args[_key2] = arguments[_key2];
 	}
@@ -349,23 +370,17 @@ function test() {
 
 	if (typeof fn !== 'function') throw new TypeError();
 
+	var assert = assertions.get();
+
 	var _iteratorNormalCompletion3 = true;
 	var _didIteratorError3 = false;
 	var _iteratorError3 = undefined;
 
 	try {
-		var _loop = function _loop() {
+		for (var _iterator3 = generator.apply(undefined, args)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 			var arg = _step3.value;
 
-			if (arg.valid) _assert3.default.doesNotThrow(function () {
-				return fn.apply(undefined, _toConsumableArray(arg.items));
-			});else _assert3.default.throws(function () {
-				return fn.apply(undefined, _toConsumableArray(arg.items));
-			});
-		};
-
-		for (var _iterator3 = generator.apply(undefined, args)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-			_loop();
+			if (arg.valid) assert.return(fn, arg.items);else assert.throw(fn, arg.items);
 		}
 	} catch (err) {
 		_didIteratorError3 = true;
@@ -382,3 +397,5 @@ function test() {
 		}
 	}
 }
+
+var setAssertions = exports.setAssertions = assertions.set;
