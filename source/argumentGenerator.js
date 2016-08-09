@@ -222,10 +222,13 @@ function _getArgument(type) {
 		case TYPE_UNDEFINED : return undefined;
 		case TYPE_NULL : return null;
 		case TYPE_BOOLEAN : return Boolean(Math.random());
+		case TYPE_NUMBER : return _getNumber(true, false, 0, Number.MAX_VALUE);
 		case TYPE_NUMBER_NAN : return NaN;
 		case TYPE_NUMBER_POS : return _getNumber(true, false, 0, Number.MAX_VALUE);
 		case TYPE_NUMBER_NEG : return _getNumber(false, false, -Number.MAX_VALUE, 0);
+		case TYPE_NUMBER_INT : return _getNumber(true, true, 0, Number.MAX_SAFE_INTEGER);
 		case TYPE_NUMBER_INT_NEG : return _getNumber(false, true, 0, Number.MAX_SAFE_INTEGER);
+		case TYPE_NUMBER_INT_POS : return _getNumber(true, true, 0, Number.MAX_SAFE_INTEGER);
 		case TYPE_NUMBER_INT_POS_8 : return _getNumber(true, true, 0, 0xff);
 		case TYPE_NUMBER_INT_POS_16 : return _getNumber(true, true, 0x0100, 0xffff);
 		case TYPE_NUMBER_INT_POS_24 : return _getNumber(true, true, 0x010000, 0xffffff);
@@ -236,6 +239,7 @@ function _getArgument(type) {
 		case TYPE_STRING_CHAR : return 'a';
 		case TYPE_STRING_NONEMPTY : return 'abc';
 		case TYPE_SYMBOL : return Symbol(`Symbol#${ ++nextSymbol }`);
+		case TYPE_OBJECT :
 		case TYPE_OBJECT_LITERAL : return {};
 		case TYPE_OBJECT_REGEXP : return /^$/;
 		case TYPE_OBJECT_ERROR : return new Error();
