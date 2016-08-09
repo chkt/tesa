@@ -280,6 +280,9 @@ function* generator(...validTypes) {
 }
 
 
+let _spec = null;
+
+
 /**
  * Creates a list of arguments and tests against the last argument
  * @param {...*} args
@@ -293,11 +296,24 @@ export default function use(...args) {
 	const assert = assertions.get();
 
 	for (let spec of generator(...args)) {
+		_spec = spec;
+
 		const args = spec.values.slice(0);
 
 		if (spec.valid) assert.return(fn, args);
 		else assert.throw(fn, args);
 	}
+
+	_spec = null;
+}
+
+
+/**
+ * Returns the specification of the current assertion call or null
+ * @returns {Object|null}
+ */
+export function getCallSpec() {
+	return _spec;
 }
 
 
