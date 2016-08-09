@@ -210,13 +210,19 @@ function _getFilteredTypes(list) {
 	return types.filter((item, index, source) => filter.indexOf(item) === -1);
 }
 
-function _getDefaultArguments(args) {
+function _getDefaultSpecs(args) {
 	return args.map((item, index, source) => {
-		for (let type of item) {
-			if (_isDefaultType(type)) return _getArgument(type);
-		}
+		let type, valid;
 
-		throw new TypeError();
+		if (item.length !== 0) type = item[0], valid = true;
+		else type = TYPE_UNDEFINED, valid = false;
+
+		return {
+			index,
+			type,
+			valid,
+			value : _getArgument(type)
+		};
 	});
 }
 
@@ -275,20 +281,29 @@ function _getArgument(type) {
 function* generator(...validTypes) {
 	if (!_isValid(validTypes)) throw new TypeError();
 
-	const defaultArgs = _getDefaultArguments(validTypes);
+	const defaults = _getDefaultSpecs(validTypes);
+	const defValid = defaults.every((item, index, source) => item.valid);
 
 	for (let i = validTypes.length - 1; i > -1; i -= 1) {
-		const args = defaultArgs.slice(0);
+		const specs = defaults.slice(0);
 		const list = validTypes[i];
 
 		for (let type of _getFilteredTypes(list)) {
-			const flags = _getFlags(type), value = _getArgument(type);
+			const flags = _getFlags(type);
+			const valid = _isValidArgument(list, flags);
+			const value = _getArgument(type);
 
-			args.splice(i, 1, value);
+			specs.splice(i, 1, {
+				index : i,
+				type,
+				valid,
+				value
+			});
 
 			yield {
-				valid : _isValidArgument(list, flags),
-				items : args.slice(0)
+				valid : defValid && valid,
+				specs,
+				values : specs.map((item, index, source) => item.value)
 			};
 		}
 	}
@@ -307,9 +322,11 @@ export default function use(...args) {
 
 	const assert = assertions.get();
 
-	for (let arg of generator(...args)) {
-		if (arg.valid) assert.return(fn, arg.items);
-		else assert.throw(fn, arg.items);
+	for (let spec of generator(...args)) {
+		const args = spec.values.slice(0);
+
+		if (spec.valid) assert.return(fn, args);
+		else assert.throw(fn, args);
 	}
 }
 
