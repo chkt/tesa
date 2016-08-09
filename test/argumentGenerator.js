@@ -87,7 +87,7 @@ describe("use", () => {
 		assert.doesNotThrow(() => use(arg, () => 1));
 	});
 
-	it("should require all additional arguments to be nonempty arrays", () => {
+	it("should require all additional arguments to be arrays", () => {
 		const assertfn = (fn, args) => null;
 		const testfn = () => 1;
 
@@ -102,7 +102,7 @@ describe("use", () => {
 		assert.throws(() => use(Symbol("1"), testfn), TypeError);
 		assert.throws(() => use(() => 1, testfn), TypeError);
 		assert.throws(() => use({ "1" : 1 }, testfn), TypeError);
-		assert.throws(() => use([], testfn), TypeError);
+		assert.doesNotThrow(() => use([], testfn), TypeError);
 		assert.doesNotThrow(() => use([ null], testfn));
 		assert.throws(() => use([ null ], undefined, testfn), TypeError);
 		assert.throws(() => use([ null ], null, testfn), TypeError);
@@ -113,7 +113,7 @@ describe("use", () => {
 		assert.throws(() => use([ null ], Symbol("1"), testfn), TypeError);
 		assert.throws(() => use([ null ], () => 1, testfn), TypeError);
 		assert.throws(() => use([ null ], { "1" : 1 }, testfn), TypeError);
-		assert.throws(() => use([ null ], [], testfn), TypeError);
+		assert.doesNotThrow(() => use([ null ], [], testfn), TypeError);
 		assert.doesNotThrow(() => use([ null ], [ null], testfn));
 	});
 
