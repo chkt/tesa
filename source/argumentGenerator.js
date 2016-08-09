@@ -143,36 +143,6 @@ function _isType(type) {
 	return TYPES.indexOf(type) !== -1;
 }
 
-function _isDefaultType(type) {
-	return !_isType(type) || [
-			TYPE_BOOLEAN,
-			TYPE_NUMBER,
-			TYPE_NUMBER_POS,
-			TYPE_NUMBER_NEG,
-			TYPE_NUMBER_INT,
-			TYPE_NUMBER_INT_POS,
-			TYPE_NUMBER_INT_NEG,
-			TYPE_NUMBER_INT_POS_8,
-			TYPE_NUMBER_INT_POS_16,
-			TYPE_NUMBER_INT_POS_24,
-			TYPE_NUMBER_INT_POS_32,
-			TYPE_NUMBER_INT_POS_MAX,
-			TYPE_STRING,
-			TYPE_STRING_EMPTY,
-			TYPE_STRING_CHAR,
-			TYPE_STRING_NONEMPTY,
-			TYPE_SYMBOL,
-			TYPE_OBJECT,
-			TYPE_OBJECT_LITERAL,
-			TYPE_OBJECT_REGEXP,
-			TYPE_OBJECT_ERROR,
-			TYPE_OBJECT_ITERATOR,
-			TYPE_ARRAY,
-			TYPE_FUNCTION,
-			TYPE_FUNCTION_GENERATOR
-		].indexOf(type) !== -1;
-}
-
 
 
 function _isValid(args) {
