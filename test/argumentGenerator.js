@@ -16,6 +16,29 @@ function testAssertType(type, ret, thr) {
 	assert.doesNotThrow(() => use([ type ], noop));
 }
 
+function testUseTypes(...args) {
+	const types = {};
+
+	function afn(...args) {
+		const spec = u.getCallSpec();
+
+		for (let item of spec.specs) {
+			const type = item.type;
+
+			if (!(type in types)) types[type] = 1;
+			else types[type] += 1;
+		}
+	}
+
+	assertions.set(afn, afn);
+
+	args.push(noop);
+
+	use(...args);
+
+	return types;
+}
+
 
 
 describe("u", () => {
@@ -55,6 +78,12 @@ describe("u", () => {
 
 		assert.strictEqual(typeof u.TYPE_FUNCTION, 'symbol');
 		assert.strictEqual(typeof u.TYPE_FUNCTION_GENERATOR, 'symbol');
+	});
+
+	describe("getCallSpec", () => {
+		it("should return null outside of assertions", () => {
+			assert.strictEqual(u.getCallSpec(), null);
+		});
 	});
 });
 
@@ -115,6 +144,32 @@ describe("use", () => {
 		assert.throws(() => use([ null ], { "1" : 1 }, testfn), TypeError);
 		assert.doesNotThrow(() => use([ null ], [], testfn), TypeError);
 		assert.doesNotThrow(() => use([ null ], [ null], testfn));
+	});
+
+	it("should populate getCallSpec", () => {
+		testAssertType(u.TYPE_UNDEFINED, (fn, args) => {
+			const spec = u.getCallSpec();
+
+			assert.strictEqual(typeof spec, 'object');
+			assert.notStrictEqual(spec, null);
+		}, (fn, args) => null);
+	});
+
+	it("should test all default argument types against each default argument", () => {
+		let types = testUseTypes([]);
+		let num = 0, used = 0;
+
+		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
+
+		assert.strictEqual(num, used);
+
+		types = testUseTypes([ u.TYPE_BOOLEAN ], [ u.TYPE_BOOLEAN ]);
+
+		num = 0, used = 0;
+
+		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
+
+		assert.strictEqual(used, num * 4);
 	});
 
 	it("should only trigger the return assertion for boolean types if argument type is TYPE_BOOLEAN", () => {
