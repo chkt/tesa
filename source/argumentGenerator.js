@@ -38,6 +38,8 @@ export const TYPE_ARRAY = Symbol("object: array");
 export const TYPE_FUNCTION = Symbol("function");
 export const TYPE_FUNCTION_GENERATOR = Symbol("function*");
 
+export const TYPE_SPEC = Symbol("client");
+
 
 const FLAG_TYPE_VALID = 0x80000;
 
@@ -142,8 +144,51 @@ const clientValue = [];
 
 
 
+function _buildDescriptor(props) {
+	const res = {};
+
+	for (let prop in props) res[prop] = {
+		value : props[prop],
+		writable : true,
+		enumerable : true
+	};
+
+	return res;
+}
+
+
+
 function _isType(type) {
 	return TYPES.indexOf(type) !== -1;
+}
+
+
+function _isSpec(arg) {
+	return typeof arg === 'object' && arg !== null && TYPE_SPEC in arg;
+}
+
+function _buildSpec(item, validTypes) {
+	const type = _isType(item) ? item : _getClientType(item);
+	const flags = _getFlags(item);
+	const valid = _isValidArgument(validTypes, flags);
+
+	return {
+		[ TYPE_SPEC ] : true,
+		type : type,
+		valid : valid,
+		value : _getArgument(type)
+	};
+}
+
+function _extendSpec(item) {
+	if (!('value' in item)) throw new Error();
+
+	const desc  = _buildDescriptor({
+		type : _getClientType(item.value),
+		valid : 'valid' in item ? item.valid : true
+	});
+
+	return Object.create(item, desc);
 }
 
 
@@ -174,7 +219,6 @@ function _clearClientCache() {
 }
 
 
-
 function _isValid(args) {
 	try {
 		args.forEach((item, index, source) => {
@@ -192,7 +236,8 @@ function _getFlags(item) {
 	return _isType(item) ? map.get(item) : FLAG_TYPE_VALID;
 }
 
-function _getFilteredTypes(list) {
+
+function _getFilteredSpecs(list) {
 	const types = TYPES.slice(0);
 
 	const filter = [
@@ -204,31 +249,21 @@ function _getFilteredTypes(list) {
 	];
 
 	list.forEach((item, index, source) => {
-		if (!_isType(item)) types.push(_getClientType(item));
+		if (!_isType(item)) types.push(item);
 	});
 
-	return types.filter((item, index, source) => filter.indexOf(item) === -1);
+	return types
+		.filter((item, index, source) => filter.indexOf(item) === -1)
+		.map((item, index, source) => _isSpec(item) ? _extendSpec(item) : _buildSpec(item, list));
 }
 
 function _getDefaultSpecs(args) {
 	return args.map((item, index, source) => {
-		let type, valid;
+		if (item.length === 0) return _buildSpec(TYPE_UNDEFINED, []);
 
-		if (item.length !== 0) {
-			type = _isType(item[0]) ? item[0] : _getClientType(item[0]);
-			valid = true;
-		}
-		else {
-			type = TYPE_UNDEFINED;
-			valid = false;
-		}
+		const first = item[0];
 
-		return {
-			index,
-			type,
-			valid,
-			value : _getArgument(type)
-		};
+		return Object.create(_isSpec(first) ? _extendSpec(first) : _buildSpec(first, item));
 	});
 }
 
@@ -300,20 +335,11 @@ function* generator(...validTypes) {
 		const specs = defaults.slice(0);
 		const list = validTypes[i];
 
-		for (let type of _getFilteredTypes(list)) {
-			const flags = _getFlags(type);
-			const valid = _isValidArgument(list, flags);
-			const value = _getArgument(type);
-
-			specs.splice(i, 1, {
-				index : i,
-				type,
-				valid,
-				value
-			});
+		for (let spec of _getFilteredSpecs(list)) {
+			specs.splice(i, 1, spec);
 
 			yield {
-				valid : defValid && valid,
+				valid : defValid && spec.valid,
 				specs,
 				values : specs.map((item, index, source) => item.value)
 			};
@@ -347,6 +373,21 @@ export default function use(...args) {
 	}
 
 	_spec = null;
+}
+
+
+/**
+ * Registers obj for use as a spec object
+ * @param {Object} obj - The source object
+ * @returns {Object}
+ * @throws {TypeError} if obj is not an object
+ */
+export function registerSpec(obj) {
+	if (obj.constructor !== Object) throw new TypeError();
+
+	return Object.assign(obj, _buildDescriptor({
+		[ TYPE_SPEC ] : true
+	}));
 }
 
 
