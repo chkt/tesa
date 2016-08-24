@@ -16,6 +16,18 @@ function testAssertType(type, ret, thr) {
 	assert.doesNotThrow(() => use([ type ], noop));
 }
 
+function testAssertSpec(type) {
+	assertions.set((fn, args) => {
+		if (args[0] !== type.value) return;
+		else if ('valid' in type && type.valid !== true) throw new Error();
+	}, (fn, args) => {
+		if (args[0] !== type.value) return;
+		else if (!('valid' in type) || type.valid !== false) throw new Error();
+	});
+
+	assert.doesNotThrow(() => use([ u.registerSpec(type) ], noop));
+}
+
 function testUseTypes(...args) {
 	const types = {};
 
@@ -78,6 +90,11 @@ describe("u", () => {
 
 		assert.strictEqual(typeof u.TYPE_FUNCTION, 'symbol');
 		assert.strictEqual(typeof u.TYPE_FUNCTION_GENERATOR, 'symbol');
+	});
+
+	describe("registerSpec", () => {
+		it("should require an object as first argument");
+		it("should return the original object");
 	});
 
 	describe("getCallSpec", () => {
@@ -180,6 +197,22 @@ describe("use", () => {
 		assert.strictEqual(num, used);
 
 		types = testUseTypes([ "bar" ], [ "baz" ]);
+		num = 0, used = 0;
+
+		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
+
+		assert.strictEqual(used, (num - 1) * 4);
+	});
+
+	it("should test spec object arguments against each default argument and all spec object arguments", () => {
+		let types = testUseTypes([ u.registerSpec({ value : "foo" }) ]);
+		let num = 0, used = 0;
+
+		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
+
+		assert.strictEqual(num, used);
+
+		types = testUseTypes([ u.registerSpec({ value : "bar" }) ], [ u.registerSpec({ value : "baz" }) ]);
 		num = 0, used = 0;
 
 		for (let id of Object.getOwnPropertySymbols(types)) num += 1, used += types[id];
@@ -344,6 +377,22 @@ describe("use", () => {
 			if (typeof args[0] !== 'function' || args[0].constructor.name !== 'GeneratorFunction') throw new Error();
 		}, (fn, args) => {
 			if (typeof args[0] === 'function' && args[0].constructor.name === 'GeneratorFunction') throw new Error();
+		});
+	});
+
+	it("should only trigger the return assertion for spec objects if the argument is a spec object", () => {
+		testAssertSpec({
+			value : "foo"
+		});
+
+		testAssertSpec({
+			value : "bar",
+			valid : true
+		});
+
+		testAssertSpec({
+			value : "baz",
+			valid : false
 		});
 	});
 
