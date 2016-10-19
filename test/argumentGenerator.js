@@ -26,6 +26,16 @@ function testAssertSpec(type) {
 	});
 
 	assert.doesNotThrow(() => use([ u.registerSpec(type) ], noop));
+
+	assertions.set((fn, args) => {
+		assert.doesNotThrow(() => fn(...args));
+	}, (fn, args) => {
+		assert.throws(() => fn(...args));
+	});
+
+	use([ u.registerSpec(type) ], (arg) => {
+		if (arg !== type.value || 'valid' in type && !type.valid) throw new Error();
+	});
 }
 
 function testUseTypes(...args) {
