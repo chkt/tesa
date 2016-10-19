@@ -1,8 +1,8 @@
 #ide
-/.idea
+/.idea/
 
 #lib
-/node_modules
+/node_modules/
 
 #files
 /npm-debug.log
