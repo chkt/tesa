@@ -208,7 +208,7 @@ function _getClientType(item) {
 function _getClientValue(symbol) {
 	const index = clientSymbol.indexOf(symbol);
 
-	if (index === -1) throw new Error("foo");
+	if (index === -1) throw new Error();
 
 	return clientValue[index];
 }
@@ -385,9 +385,9 @@ export default function use(...args) {
 export function registerSpec(obj) {
 	if (obj.constructor !== Object) throw new TypeError();
 
-	return Object.assign(obj, _buildDescriptor({
+	return Object.assign(obj, {
 		[ TYPE_SPEC ] : true
-	}));
+	});
 }
 
 
