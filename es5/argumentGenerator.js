@@ -3,8 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.setAssertions = exports.TYPE_FUNCTION_GENERATOR = exports.TYPE_FUNCTION = exports.TYPE_ARRAY = exports.TYPE_OBJECT_ERROR = exports.TYPE_OBJECT_ITERATOR = exports.TYPE_OBJECT_REGEXP = exports.TYPE_OBJECT_LITERAL = exports.TYPE_OBJECT = exports.TYPE_SYMBOL = exports.TYPE_STRING_NONEMPTY = exports.TYPE_STRING_CHAR = exports.TYPE_STRING_EMPTY = exports.TYPE_STRING = exports.TYPE_NUMBER_INT_NEG = exports.TYPE_NUMBER_INT_POS_MAX = exports.TYPE_NUMBER_INT_POS_32 = exports.TYPE_NUMBER_INT_POS_24 = exports.TYPE_NUMBER_INT_POS_16 = exports.TYPE_NUMBER_INT_POS_8 = exports.TYPE_NUMBER_INT_POS = exports.TYPE_NUMBER_INT = exports.TYPE_NUMBER_NEG = exports.TYPE_NUMBER_POS = exports.TYPE_NUMBER_NAN = exports.TYPE_NUMBER = exports.TYPE_BOOLEAN = exports.TYPE_NULL = exports.TYPE_UNDEFINED = undefined;
+exports.setAssertions = exports.TYPE_SPEC = exports.TYPE_FUNCTION_GENERATOR = exports.TYPE_FUNCTION = exports.TYPE_ARRAY = exports.TYPE_OBJECT_ERROR = exports.TYPE_OBJECT_ITERATOR = exports.TYPE_OBJECT_REGEXP = exports.TYPE_OBJECT_LITERAL = exports.TYPE_OBJECT = exports.TYPE_SYMBOL = exports.TYPE_STRING_NONEMPTY = exports.TYPE_STRING_CHAR = exports.TYPE_STRING_EMPTY = exports.TYPE_STRING = exports.TYPE_NUMBER_INT_NEG = exports.TYPE_NUMBER_INT_POS_MAX = exports.TYPE_NUMBER_INT_POS_32 = exports.TYPE_NUMBER_INT_POS_24 = exports.TYPE_NUMBER_INT_POS_16 = exports.TYPE_NUMBER_INT_POS_8 = exports.TYPE_NUMBER_INT_POS = exports.TYPE_NUMBER_INT = exports.TYPE_NUMBER_NEG = exports.TYPE_NUMBER_POS = exports.TYPE_NUMBER_NAN = exports.TYPE_NUMBER = exports.TYPE_BOOLEAN = exports.TYPE_NULL = exports.TYPE_UNDEFINED = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 exports.default = use;
+exports.registerSpec = registerSpec;
+exports.getCallSpec = getCallSpec;
 
 var _assertions = require("./assertions");
 
@@ -13,6 +18,8 @@ var assertions = _interopRequireWildcard(_assertions);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var _marked = [generator].map(regeneratorRuntime.mark);
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var TYPE_UNDEFINED = exports.TYPE_UNDEFINED = Symbol("undefined");
 var TYPE_NULL = exports.TYPE_NULL = Symbol("null");
@@ -50,7 +57,10 @@ var TYPE_ARRAY = exports.TYPE_ARRAY = Symbol("object: array");
 var TYPE_FUNCTION = exports.TYPE_FUNCTION = Symbol("function");
 var TYPE_FUNCTION_GENERATOR = exports.TYPE_FUNCTION_GENERATOR = Symbol("function*");
 
-var FLAG_TYPE_NONE = 0x80000;
+var TYPE_SPEC = exports.TYPE_SPEC = Symbol("client");
+
+var FLAG_TYPE_VALID = 0x80000;
+
 var FLAG_TYPE_UNDEFINED = 0x01;
 var FLAG_TYPE_NULL = 0x02;
 var FLAG_TYPE_BOOLEAN = 0x04;
@@ -85,12 +95,74 @@ var TYPES = Object.freeze([TYPE_UNDEFINED, TYPE_NULL, TYPE_BOOLEAN, TYPE_NUMBER,
 
 var nextSymbol = 0;
 
+var clientSymbol = [];
+var clientValue = [];
+
+function _buildDescriptor(props) {
+	var res = {};
+
+	for (var prop in props) {
+		res[prop] = {
+			value: props[prop],
+			writable: true,
+			enumerable: true
+		};
+	}return res;
+}
+
 function _isType(type) {
 	return TYPES.indexOf(type) !== -1;
 }
 
-function _isDefaultType(type) {
-	return !_isType(type) || [TYPE_BOOLEAN, TYPE_NUMBER, TYPE_NUMBER_POS, TYPE_NUMBER_NEG, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_NUMBER_INT_NEG, TYPE_NUMBER_INT_POS_8, TYPE_NUMBER_INT_POS_16, TYPE_NUMBER_INT_POS_24, TYPE_NUMBER_INT_POS_32, TYPE_NUMBER_INT_POS_MAX, TYPE_STRING, TYPE_STRING_EMPTY, TYPE_STRING_CHAR, TYPE_STRING_NONEMPTY, TYPE_SYMBOL, TYPE_OBJECT, TYPE_OBJECT_LITERAL, TYPE_OBJECT_REGEXP, TYPE_OBJECT_ERROR, TYPE_OBJECT_ITERATOR, TYPE_ARRAY, TYPE_FUNCTION, TYPE_FUNCTION_GENERATOR].indexOf(type) !== -1;
+function _isSpec(arg) {
+	return (typeof arg === "undefined" ? "undefined" : _typeof(arg)) === 'object' && arg !== null && TYPE_SPEC in arg;
+}
+
+function _buildSpec(item, validTypes) {
+	var _ref;
+
+	var type = _isType(item) ? item : _getClientType(item);
+	var flags = _getFlags(item);
+	var valid = _isValidArgument(validTypes, flags);
+
+	return _ref = {}, _defineProperty(_ref, TYPE_SPEC, true), _defineProperty(_ref, "type", type), _defineProperty(_ref, "valid", valid), _defineProperty(_ref, "value", _getArgument(type)), _ref;
+}
+
+function _extendSpec(item) {
+	if (!('value' in item)) throw new Error();
+
+	var desc = _buildDescriptor({
+		type: _getClientType(item.value),
+		valid: 'valid' in item ? item.valid : true
+	});
+
+	return Object.create(item, desc);
+}
+
+function _getClientType(item) {
+	var index = clientValue.indexOf(item);
+
+	if (index === -1) {
+		index = clientSymbol.length;
+
+		clientSymbol.push(Symbol("client#" + index));
+		clientValue.push(item);
+	}
+
+	return clientSymbol[index];
+}
+
+function _getClientValue(symbol) {
+	var index = clientSymbol.indexOf(symbol);
+
+	if (index === -1) throw new Error("foo");
+
+	return clientValue[index];
+}
+
+function _clearClientCache() {
+	clientValue.splice(0, clientValue.length);
+	clientSymbol.splice(0, clientSymbol.length);
 }
 
 function _isValid(args) {
@@ -106,10 +178,10 @@ function _isValid(args) {
 }
 
 function _getFlags(item) {
-	return _isType(item) ? map.get(item) : FLAG_TYPE_NONE;
+	return _isType(item) ? map.get(item) : FLAG_TYPE_VALID;
 }
 
-function _getFilteredTypes(list) {
+function _getFilteredSpecs(list) {
 	var types = TYPES.slice(0);
 
 	var filter = [TYPE_NUMBER, TYPE_NUMBER_INT, TYPE_NUMBER_INT_POS, TYPE_STRING, TYPE_OBJECT];
@@ -120,37 +192,18 @@ function _getFilteredTypes(list) {
 
 	return types.filter(function (item, index, source) {
 		return filter.indexOf(item) === -1;
+	}).map(function (item, index, source) {
+		return _isSpec(item) ? _extendSpec(item) : _buildSpec(item, list);
 	});
 }
 
-function _getDefaultArguments(args) {
+function _getDefaultSpecs(args) {
 	return args.map(function (item, index, source) {
-		var _iteratorNormalCompletion = true;
-		var _didIteratorError = false;
-		var _iteratorError = undefined;
+		if (item.length === 0) return _buildSpec(TYPE_UNDEFINED, []);
 
-		try {
-			for (var _iterator = item[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-				var type = _step.value;
+		var first = item[0];
 
-				if (_isDefaultType(type)) return _getArgument(type);
-			}
-		} catch (err) {
-			_didIteratorError = true;
-			_iteratorError = err;
-		} finally {
-			try {
-				if (!_iteratorNormalCompletion && _iterator.return) {
-					_iterator.return();
-				}
-			} finally {
-				if (_didIteratorError) {
-					throw _iteratorError;
-				}
-			}
-		}
-
-		throw new TypeError();
+		return Object.create(_isSpec(first) ? _extendSpec(first) : _buildSpec(first, item));
 	});
 }
 
@@ -163,7 +216,7 @@ function _getNumber(positive, integer, min, max) {
 }
 
 function _isValidArgument(list, flags) {
-	if (flags === FLAG_TYPE_NONE) return true;
+	if (flags === FLAG_TYPE_VALID) return true;
 
 	return list.some(function (item, index, source) {
 		var itemFlags = _getFlags(item);
@@ -180,14 +233,20 @@ function _getArgument(type) {
 			return null;
 		case TYPE_BOOLEAN:
 			return Boolean(Math.random());
+		case TYPE_NUMBER:
+			return _getNumber(true, false, 0, Number.MAX_VALUE);
 		case TYPE_NUMBER_NAN:
 			return NaN;
 		case TYPE_NUMBER_POS:
 			return _getNumber(true, false, 0, Number.MAX_VALUE);
 		case TYPE_NUMBER_NEG:
 			return _getNumber(false, false, -Number.MAX_VALUE, 0);
+		case TYPE_NUMBER_INT:
+			return _getNumber(true, true, 0, Number.MAX_SAFE_INTEGER);
 		case TYPE_NUMBER_INT_NEG:
 			return _getNumber(false, true, 0, Number.MAX_SAFE_INTEGER);
+		case TYPE_NUMBER_INT_POS:
+			return _getNumber(true, true, 0, Number.MAX_SAFE_INTEGER);
 		case TYPE_NUMBER_INT_POS_8:
 			return _getNumber(true, true, 0, 0xff);
 		case TYPE_NUMBER_INT_POS_16:
@@ -208,6 +267,7 @@ function _getArgument(type) {
 			return 'abc';
 		case TYPE_SYMBOL:
 			return Symbol("Symbol#" + ++nextSymbol);
+		case TYPE_OBJECT:
 		case TYPE_OBJECT_LITERAL:
 			return {};
 		case TYPE_OBJECT_REGEXP:
@@ -246,7 +306,7 @@ function _getArgument(type) {
 				}, _callee2, this);
 			});
 		default:
-			return type;
+			return _getClientValue(type);
 	}
 }
 
@@ -255,7 +315,7 @@ function generator() {
 		validTypes[_key] = arguments[_key];
 	}
 
-	var defaultArgs, i, args, list, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, type, flags, value;
+	var defaults, defValid, i, specs, list, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, spec;
 
 	return regeneratorRuntime.wrap(function generator$(_context3) {
 		while (1) {
@@ -269,92 +329,101 @@ function generator() {
 					throw new TypeError();
 
 				case 2:
-					defaultArgs = _getDefaultArguments(validTypes);
+
+					_clearClientCache();
+
+					defaults = _getDefaultSpecs(validTypes);
+					defValid = defaults.every(function (item, index, source) {
+						return item.valid;
+					});
 					i = validTypes.length - 1;
 
-				case 4:
+				case 6:
 					if (!(i > -1)) {
-						_context3.next = 38;
+						_context3.next = 39;
 						break;
 					}
 
-					args = defaultArgs.slice(0);
+					specs = defaults.slice(0);
 					list = validTypes[i];
-					_iteratorNormalCompletion2 = true;
-					_didIteratorError2 = false;
-					_iteratorError2 = undefined;
-					_context3.prev = 10;
-					_iterator2 = _getFilteredTypes(list)[Symbol.iterator]();
+					_iteratorNormalCompletion = true;
+					_didIteratorError = false;
+					_iteratorError = undefined;
+					_context3.prev = 12;
+					_iterator = _getFilteredSpecs(list)[Symbol.iterator]();
 
-				case 12:
-					if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-						_context3.next = 21;
+				case 14:
+					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+						_context3.next = 22;
 						break;
 					}
 
-					type = _step2.value;
-					flags = _getFlags(type), value = _getArgument(type);
+					spec = _step.value;
 
+					specs.splice(i, 1, spec);
 
-					args.splice(i, 1, value);
-
-					_context3.next = 18;
+					_context3.next = 19;
 					return {
-						valid: _isValidArgument(list, flags),
-						items: args.slice(0)
+						valid: defValid && spec.valid,
+						specs: specs,
+						values: specs.map(function (item, index, source) {
+							return item.value;
+						})
 					};
 
-				case 18:
-					_iteratorNormalCompletion2 = true;
-					_context3.next = 12;
+				case 19:
+					_iteratorNormalCompletion = true;
+					_context3.next = 14;
 					break;
 
-				case 21:
-					_context3.next = 27;
+				case 22:
+					_context3.next = 28;
 					break;
 
-				case 23:
-					_context3.prev = 23;
-					_context3.t0 = _context3["catch"](10);
-					_didIteratorError2 = true;
-					_iteratorError2 = _context3.t0;
+				case 24:
+					_context3.prev = 24;
+					_context3.t0 = _context3["catch"](12);
+					_didIteratorError = true;
+					_iteratorError = _context3.t0;
 
-				case 27:
-					_context3.prev = 27;
+				case 28:
 					_context3.prev = 28;
+					_context3.prev = 29;
 
-					if (!_iteratorNormalCompletion2 && _iterator2.return) {
-						_iterator2.return();
+					if (!_iteratorNormalCompletion && _iterator.return) {
+						_iterator.return();
 					}
 
-				case 30:
-					_context3.prev = 30;
+				case 31:
+					_context3.prev = 31;
 
-					if (!_didIteratorError2) {
-						_context3.next = 33;
+					if (!_didIteratorError) {
+						_context3.next = 34;
 						break;
 					}
 
-					throw _iteratorError2;
-
-				case 33:
-					return _context3.finish(30);
+					throw _iteratorError;
 
 				case 34:
-					return _context3.finish(27);
+					return _context3.finish(31);
 
 				case 35:
+					return _context3.finish(28);
+
+				case 36:
 					i -= 1;
-					_context3.next = 4;
+					_context3.next = 6;
 					break;
 
-				case 38:
+				case 39:
 				case "end":
 					return _context3.stop();
 			}
 		}
-	}, _marked[0], this, [[10, 23, 27, 35], [28,, 30, 34]]);
+	}, _marked[0], this, [[12, 24, 28, 36], [29,, 31, 35]]);
 }
+
+var _spec = null;
 
 /**
  * Creates a list of arguments and tests against the last argument
@@ -372,30 +441,56 @@ function use() {
 
 	var assert = assertions.get();
 
-	var _iteratorNormalCompletion3 = true;
-	var _didIteratorError3 = false;
-	var _iteratorError3 = undefined;
+	var _iteratorNormalCompletion2 = true;
+	var _didIteratorError2 = false;
+	var _iteratorError2 = undefined;
 
 	try {
-		for (var _iterator3 = generator.apply(undefined, args)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-			var arg = _step3.value;
+		for (var _iterator2 = generator.apply(undefined, args)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+			var spec = _step2.value;
 
-			if (arg.valid) assert.return(fn, arg.items);else assert.throw(fn, arg.items);
+			_spec = spec;
+
+			var _args4 = spec.values.slice(0);
+
+			if (spec.valid) assert.return(fn, _args4);else assert.throw(fn, _args4);
 		}
 	} catch (err) {
-		_didIteratorError3 = true;
-		_iteratorError3 = err;
+		_didIteratorError2 = true;
+		_iteratorError2 = err;
 	} finally {
 		try {
-			if (!_iteratorNormalCompletion3 && _iterator3.return) {
-				_iterator3.return();
+			if (!_iteratorNormalCompletion2 && _iterator2.return) {
+				_iterator2.return();
 			}
 		} finally {
-			if (_didIteratorError3) {
-				throw _iteratorError3;
+			if (_didIteratorError2) {
+				throw _iteratorError2;
 			}
 		}
 	}
+
+	_spec = null;
+}
+
+/**
+ * Registers obj for use as a spec object
+ * @param {Object} obj - The source object
+ * @returns {Object}
+ * @throws {TypeError} if obj is not an object
+ */
+function registerSpec(obj) {
+	if (obj.constructor !== Object) throw new TypeError();
+
+	return Object.assign(obj, _buildDescriptor(_defineProperty({}, TYPE_SPEC, true)));
+}
+
+/**
+ * Returns the specification of the current assertion call or null
+ * @returns {Object|null}
+ */
+function getCallSpec() {
+	return _spec;
 }
 
 var setAssertions = exports.setAssertions = assertions.set;
